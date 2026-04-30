@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}PulseBoard | Team Task Manager{% endblock %}
+
+{% block content %}
+<main class="auth-layout">
+    <section class="auth-showcase">
+        <p class="eyebrow">PulseBoard</p>
+        <h1>Turn scattered team work into a calmer, clearer workflow.</h1>
+        <p class="lead">
+            Track projects, assign owners, spot deadlines early, and keep everyone aligned from one lightweight dashboard.
+        </p>
+
+        <div class="showcase-grid">
+            <article class="showcase-card">
+                <h3>Clear priorities</h3>
+                <p>Highlight high-impact tasks, deadline pressure, and work in progress without digging through lists.</p>
+            </article>
+            <article class="showcase-card">
+                <h3>Project pulse</h3>
+                <p>See progress by project, recent wins, and what needs attention next in one glance.</p>
+            </article>
+            <article class="showcase-card">
+                <h3>Simple updates</h3>
+                <p>Members can move work forward and leave notes right from the board, with no extra tooling.</p>
+            </article>
+        </div>
+
+        <div class="showcase-metrics">
+            <div>
+                <strong>Kanban board</strong>
+                <span>Faster status visibility</span>
+            </div>
+            <div>
+                <strong>Smart filters</strong>
+                <span>Search by owner, project, or note</span>
+            </div>
+            <div>
+                <strong>Priority tracking</strong>
+                <span>Focus on urgent work first</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="auth-panel">
+        <div class="auth-panel-header">
+            <p class="eyebrow">Welcome</p>
+            <h2>Sign in or create a workspace account</h2>
+            <p>Admins can create projects and assign work. Members can update progress and leave handoff notes.</p>
+        </div>
+
+        <div class="auth-card-grid">
+            <article class="auth-card">
+                <h3>Login</h3>
+                <form method="POST" class="stack-form">
+                    <label>
+                        Email
+                        <input name="email" type="email" placeholder="team@example.com" required>
+                    </label>
+                    <label>
+                        Password
+                        <input name="password" type="password" placeholder="Enter your password" required>
+                    </label>
+                    <button type="submit">Open dashboard</button>
+                </form>
+            </article>
+
+            <article class="auth-card auth-card-muted">
+                <h3>Create account</h3>
+                <form method="POST" action="{{ url_for('signup') }}" class="stack-form">
+                    <label>
+                        Name
+                        <input name="name" placeholder="Your name" required>
+                    </label>
+                    <label>
+                        Email
+                        <input name="email" type="email" placeholder="team@example.com" required>
+                    </label>
+                    <label>
+                        Password
+                        <input name="password" type="password" placeholder="Create a password" required>
+                    </label>
+                    <label>
+                        Role
+                        <select name="role">
+                            <option value="member">Member</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </label>
+                    <button type="submit">Create account</button>
+                </form>
+            </article>
+        </div>
+    </section>
+</main>
+{% endblock %}
