@@ -1,0 +1,140 @@
+{% extends "dashboard_layout.html" %}
+
+{% block page_title %}Overview{% endblock %}
+{% block page_kicker %}Overview{% endblock %}
+{% block page_heading %}Get a quick read on what matters most today.{% endblock %}
+{% block page_intro %}This page keeps the big picture clean: progress, urgent work, upcoming deadlines, and recent completions without the full board crowding the screen.{% endblock %}
+{% block nav_note %}Overview keeps the big picture separate from the task board so the workspace feels lighter and easier to scan.{% endblock %}
+
+{% block hero_aside %}
+<div class="hero-progress-card">
+    <span>Completion rate</span>
+    <strong>{{ completion_rate }}%</strong>
+    <div class="progress-track">
+        <span data-progress="{{ completion_rate }}"></span>
+    </div>
+    <a class="inline-link" href="{{ url_for('board') }}">Open task board</a>
+</div>
+{% endblock %}
+
+{% block dashboard_content %}
+<section class="stats-grid">
+    <article class="stat-card">
+        <span>Total matching tasks</span>
+        <strong>{{ total }}</strong>
+        <p>Everything currently visible with your active board filters.</p>
+    </article>
+    <article class="stat-card">
+        <span>Completed</span>
+        <strong>{{ completed }}</strong>
+        <p>Work that has already crossed the finish line.</p>
+    </article>
+    <article class="stat-card">
+        <span>In progress</span>
+        <strong>{{ in_progress }}</strong>
+        <p>Tasks that are actively being worked right now.</p>
+    </article>
+    <article class="stat-card">
+        <span>Needs attention</span>
+        <strong>{{ overdue + high_priority }}</strong>
+        <p>{{ overdue }} overdue and {{ high_priority }} high-priority open tasks.</p>
+    </article>
+</section>
+
+<section class="overview-grid">
+    <div class="overview-main">
+        <article class="panel">
+            <div class="panel-heading panel-heading-stack">
+                <div>
+                    <p class="eyebrow">Focus</p>
+                    <h3>Priority tasks</h3>
+                    <p class="panel-intro">Start here when you want the fastest picture of what is urgent or likely to block progress.</p>
+                </div>
+            </div>
+
+            <div class="task-summary-list">
+                {% for card in focus_cards %}
+                <article class="mini-card mini-card-plain">
+                    <div class="mini-card-top">
+                        <strong>{{ card.task.title }}</strong>
+                        <span class="tag tag-priority tag-priority-{{ card.priority|lower }}">{{ card.priority }}</span>
+                    </div>
+                    <span>{{ card.project_name }} • {{ card.assignee_name }}</span>
+                    <p>{{ card.deadline_text }}</p>
+                </article>
+                {% else %}
+                <div class="empty-panel">
+                    <h4>No open priority tasks</h4>
+                    <p>Urgent or active work will appear here when tasks are added.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </article>
+
+        <article class="panel">
+            <div class="panel-heading panel-heading-stack">
+                <div>
+                    <p class="eyebrow">Projects</p>
+                    <h3>Project momentum</h3>
+                    <p class="panel-intro">A simple project-level snapshot without opening the full insights page.</p>
+                </div>
+            </div>
+
+            <div class="project-spotlight-grid">
+                {% for project in project_spotlight %}
+                <article class="project-summary theme-{{ project.theme }}">
+                    <div class="project-summary-top">
+                        <div>
+                            <h4>{{ project.name }}</h4>
+                            <p>{{ project.description }}</p>
+                        </div>
+                        <strong>{{ project.progress }}%</strong>
+                    </div>
+                    <div class="progress-track compact">
+                        <span data-progress="{{ project.progress }}"></span>
+                    </div>
+                    <div class="summary-meta">
+                        <span>{{ project.total }} tasks</span>
+                        <span>{{ project.open }} open</span>
+                        <span>{{ project.completed }} done</span>
+                    </div>
+                </article>
+                {% else %}
+                <div class="empty-panel">
+                    <h4>No projects yet</h4>
+                    <p>Create your first project from the manage page.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </article>
+    </div>
+
+    <aside class="overview-sidebar">
+        <article class="panel insight-block">
+            <h3>Upcoming deadlines</h3>
+            {% for card in upcoming_tasks %}
+            <article class="mini-card">
+                <strong>{{ card.task.title }}</strong>
+                <span>{{ card.project_name }}</span>
+                <p>{{ card.deadline_text }}</p>
+            </article>
+            {% else %}
+            <p class="empty-note">No active deadlines in the current view.</p>
+            {% endfor %}
+        </article>
+
+        <article class="panel insight-block">
+            <h3>Recent wins</h3>
+            {% for card in recent_wins %}
+            <article class="mini-card mini-card-success">
+                <strong>{{ card.task.title }}</strong>
+                <span>{{ card.project_name }}</span>
+                <p>Completed {{ card.completed_label }}</p>
+            </article>
+            {% else %}
+            <p class="empty-note">Completed work will appear here once tasks start closing.</p>
+            {% endfor %}
+        </article>
+    </aside>
+</section>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}PulseBoard | {% block page_title %}Workspace{% endblock %}{% endblock %}
+
+{% block content %}
+<main class="dashboard-shell">
+    <header class="topbar">
+        <div>
+            <p class="eyebrow">PulseBoard</p>
+            <h1>{{ current_user.name }}, keep the work moving.</h1>
+            <p class="topbar-copy">
+                {{ board_total }} visible tasks across {{ project_count }} projects in your {{ role }} workspace.
+            </p>
+        </div>
+        <div class="topbar-actions">
+            <div class="identity-chip">
+                <span>{{ current_user.name }}</span>
+                <strong>{{ role|title }}</strong>
+            </div>
+            <a class="ghost-link" href="{{ url_for('logout') }}">Logout</a>
+        </div>
+    </header>
+
+    <nav class="workspace-nav panel">
+        <div class="workspace-nav-links">
+            {% for item in page_nav %}
+            <a class="workspace-tab {% if active_page == item.key %}active{% endif %}" href="{{ url_for(item.endpoint) }}">
+                {{ item.label }}
+            </a>
+            {% endfor %}
+        </div>
+        <p class="workspace-nav-note">
+            {% block nav_note %}Move between pages instead of squeezing every tool into one view.{% endblock %}
+        </p>
+    </nav>
+
+    <section class="page-hero">
+        <div>
+            <p class="eyebrow">{% block page_kicker %}Workspace{% endblock %}</p>
+            <h2>{% block page_heading %}{% endblock %}</h2>
+            <p class="page-copy">{% block page_intro %}{% endblock %}</p>
+        </div>
+        <div class="page-hero-aside">
+            {% block hero_aside %}{% endblock %}
+        </div>
+    </section>
+
+    {% block dashboard_content %}{% endblock %}
+</main>
+{% endblock %}

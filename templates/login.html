@@ -49,9 +49,17 @@
             <p>Admins can create projects and assign work. Members can update progress and leave handoff notes.</p>
         </div>
 
-        <div class="auth-card-grid">
-            <article class="auth-card">
-                <h3>Login</h3>
+        <div class="auth-card auth-card-unified">
+            <div class="auth-switcher" role="tablist" aria-label="Authentication options">
+                <button type="button" class="auth-switch active" data-auth-toggle="login" aria-pressed="true">Sign in</button>
+                <button type="button" class="auth-switch" data-auth-toggle="signup" aria-pressed="false">Create account</button>
+            </div>
+
+            <article class="auth-pane" data-auth-panel="login">
+                <div class="auth-pane-header">
+                    <h3>Welcome back</h3>
+                    <p>Sign in to open your board, review tasks, and keep work moving.</p>
+                </div>
                 <form method="POST" class="stack-form">
                     <label>
                         Email
@@ -65,8 +73,11 @@
                 </form>
             </article>
 
-            <article class="auth-card auth-card-muted">
-                <h3>Create account</h3>
+            <article class="auth-pane" data-auth-panel="signup" hidden>
+                <div class="auth-pane-header">
+                    <h3>Create your account</h3>
+                    <p>Set up a new workspace login for an admin or member in the same place.</p>
+                </div>
                 <form method="POST" action="{{ url_for('signup') }}" class="stack-form">
                     <label>
                         Name

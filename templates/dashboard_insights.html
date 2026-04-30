@@ -1,0 +1,102 @@
+{% extends "dashboard_layout.html" %}
+
+{% block page_title %}Insights{% endblock %}
+{% block page_kicker %}Insights{% endblock %}
+{% block page_heading %}Review project health and deadlines without the task board noise.{% endblock %}
+{% block page_intro %}This page is for summaries, momentum, and planning conversations, so you can focus on outcomes instead of card-by-card updates.{% endblock %}
+{% block nav_note %}Insights gets its own page so planning and reporting stay readable instead of being squeezed beside the board.{% endblock %}
+
+{% block hero_aside %}
+<div class="hero-progress-card compact-card">
+    <span>Workspace snapshot</span>
+    <strong>{{ project_count }}</strong>
+    <p>{{ member_count }} teammates • {{ completed }} completed tasks</p>
+    <a class="inline-link" href="{{ url_for('manage') if role == 'admin' else url_for('board') }}">
+        {% if role == 'admin' %}Manage workspace{% else %}Open task board{% endif %}
+    </a>
+</div>
+{% endblock %}
+
+{% block dashboard_content %}
+<section class="insights-layout">
+    <div class="insights-main">
+        <article class="panel">
+            <div class="panel-heading panel-heading-stack">
+                <div>
+                    <p class="eyebrow">Projects</p>
+                    <h3>Project health</h3>
+                    <p class="panel-intro">Track how each project is progressing, how much remains open, and where attention may be needed.</p>
+                </div>
+            </div>
+
+            <div class="project-spotlight-grid">
+                {% for project in project_summaries %}
+                <article class="project-summary theme-{{ project.theme }}">
+                    <div class="project-summary-top">
+                        <div>
+                            <h4>{{ project.name }}</h4>
+                            <p>{{ project.description }}</p>
+                        </div>
+                        <strong>{{ project.progress }}%</strong>
+                    </div>
+                    <div class="progress-track compact">
+                        <span data-progress="{{ project.progress }}"></span>
+                    </div>
+                    <div class="summary-meta">
+                        <span>{{ project.total }} tasks</span>
+                        <span>{{ project.open }} open</span>
+                        <span>{{ project.completed }} done</span>
+                    </div>
+                </article>
+                {% else %}
+                <div class="empty-panel">
+                    <h4>No projects yet</h4>
+                    <p>Create the first project to unlock progress tracking.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </article>
+    </div>
+
+    <aside class="insights-sidebar">
+        <article class="panel insight-block">
+            <h3>Upcoming deadlines</h3>
+            {% for card in upcoming_tasks %}
+            <article class="mini-card">
+                <strong>{{ card.task.title }}</strong>
+                <span>{{ card.project_name }}</span>
+                <p>{{ card.deadline_text }}</p>
+            </article>
+            {% else %}
+            <p class="empty-note">No active deadlines in the current view.</p>
+            {% endfor %}
+        </article>
+
+        <article class="panel insight-block">
+            <h3>Recent wins</h3>
+            {% for card in recent_wins %}
+            <article class="mini-card mini-card-success">
+                <strong>{{ card.task.title }}</strong>
+                <span>{{ card.project_name }}</span>
+                <p>Completed {{ card.completed_label }}</p>
+            </article>
+            {% else %}
+            <p class="empty-note">Completed work will appear here once tasks start closing.</p>
+            {% endfor %}
+        </article>
+
+        <article class="panel insight-block">
+            <h3>Priority queue</h3>
+            {% for card in focus_cards %}
+            <article class="mini-card mini-card-plain">
+                <strong>{{ card.task.title }}</strong>
+                <span>{{ card.project_name }}</span>
+                <p>{{ card.deadline_text }}</p>
+            </article>
+            {% else %}
+            <p class="empty-note">Priority work will appear here as tasks are added.</p>
+            {% endfor %}
+        </article>
+    </aside>
+</section>
+{% endblock %}

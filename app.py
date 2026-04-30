@@ -23,6 +23,7 @@ PROJECT_THEMES = {
     "midnight": "Midnight",
 }
 DEFAULT_THEME = "sunset"
+WORKSPACE_ROUTE_PREFIXES = ("/dashboard", "/board", "/insights", "/manage")
 
 
 def utcnow():
@@ -294,75 +295,12 @@ def build_project_summaries(projects, task_cards):
 
 
 def build_dashboard_redirect(target):
-    if target and target.startswith("/dashboard"):
+    if target and target.startswith(WORKSPACE_ROUTE_PREFIXES):
         return target
     return url_for("dashboard")
 
 
-# ---------------- AUTH ---------------- #
-
-
-@app.route("/", methods=["GET", "POST"])
-def login():
-    if session.get("user_id"):
-        return redirect(url_for("dashboard"))
-
-    if request.method == "POST":
-        email = request.form.get("email", "").strip().lower()
-        password = request.form.get("password", "")
-
-        user = User.query.filter_by(email=email).first()
-
-        if user and check_password_hash(user.password, password):
-            session.clear()
-            session["user_id"] = user.id
-            session["role"] = user.role
-            flash(f"Welcome back, {user.name}.", "success")
-            return redirect(url_for("dashboard"))
-
-        flash("Invalid email or password.", "danger")
-        return redirect(url_for("login"))
-
-    return render_template("login.html", body_class="auth-page")
-
-
-@app.route("/signup", methods=["POST"])
-def signup():
-    name = request.form.get("name", "").strip()
-    email = request.form.get("email", "").strip().lower()
-    password = request.form.get("password", "")
-    role = request.form.get("role", "member")
-
-    if not name or not email or not password:
-        flash("Name, email, and password are required.", "warning")
-        return redirect(url_for("login"))
-
-    if role not in {"admin", "member"}:
-        role = "member"
-
-    if User.query.filter_by(email=email).first():
-        flash("That email already has an account.", "warning")
-        return redirect(url_for("login"))
-
-    user = User(
-        name=name,
-        email=email,
-        password=generate_password_hash(password),
-        role=role,
-    )
-    db.session.add(user)
-    db.session.commit()
-
-    flash("Account created. You can sign in now.", "success")
-    return redirect(url_for("login"))
-
-
-# ---------------- DASHBOARD ---------------- #
-
-
-@app.route("/dashboard")
-@login_required
-def dashboard():
+def build_workspace_context(active_page):
     user_id = session["user_id"]
     role = session["role"]
     current_user = db.session.get(User, user_id)
@@ -452,7 +390,9 @@ def dashboard():
     upcoming_tasks = sorted(upcoming_tasks, key=lambda card: card["task"].deadline)[:4]
 
     recent_wins = [
-        card for card in filtered_cards if card["status"] == "Done" and card["task"].completed_at
+        card
+        for card in filtered_cards
+        if card["status"] == "Done" and card["task"].completed_at
     ]
     recent_wins = sorted(
         recent_wins,
@@ -460,33 +400,137 @@ def dashboard():
         reverse=True,
     )[:4]
 
-    project_summaries = build_project_summaries(projects, all_cards)
+    focus_cards = [
+        card for card in sort_task_cards(filtered_cards, "priority")
+        if card["status"] != "Done"
+    ][:5]
 
-    return render_template(
-        "dashboard.html",
-        body_class="dashboard-page",
-        current_user=current_user,
+    project_summaries = build_project_summaries(projects, all_cards)
+    project_spotlight = project_summaries[:4]
+
+    page_nav = [
+        {"key": "overview", "label": "Overview", "endpoint": "dashboard"},
+        {"key": "board", "label": "Task Board", "endpoint": "board"},
+        {"key": "insights", "label": "Insights", "endpoint": "insights"},
+    ]
+    if role == "admin":
+        page_nav.append({"key": "manage", "label": "Manage", "endpoint": "manage"})
+
+    return {
+        "body_class": "dashboard-page",
+        "active_page": active_page,
+        "page_nav": page_nav,
+        "current_user": current_user,
+        "role": role,
+        "tasks_by_status": tasks_by_status,
+        "total": total,
+        "completed": completed,
+        "overdue": overdue,
+        "in_progress": in_progress,
+        "high_priority": high_priority,
+        "completion_rate": completion_rate,
+        "users": users,
+        "projects": projects,
+        "filters": filters,
+        "task_statuses": TASK_STATUSES,
+        "priority_options": PRIORITY_OPTIONS,
+        "project_themes": PROJECT_THEMES,
+        "project_summaries": project_summaries,
+        "project_spotlight": project_spotlight,
+        "upcoming_tasks": upcoming_tasks,
+        "recent_wins": recent_wins,
+        "focus_cards": focus_cards,
+        "board_total": len(all_cards),
+        "has_projects": bool(projects),
+        "dashboard_return": request.full_path if request.query_string else request.path,
+        "project_count": len(projects),
+        "member_count": len(users),
+    }
+
+
+# ---------------- AUTH ---------------- #
+
+
+@app.route("/", methods=["GET", "POST"])
+def login():
+    if session.get("user_id"):
+        return redirect(url_for("dashboard"))
+
+    if request.method == "POST":
+        email = request.form.get("email", "").strip().lower()
+        password = request.form.get("password", "")
+
+        user = User.query.filter_by(email=email).first()
+
+        if user and check_password_hash(user.password, password):
+            session.clear()
+            session["user_id"] = user.id
+            session["role"] = user.role
+            flash(f"Welcome back, {user.name}.", "success")
+            return redirect(url_for("dashboard"))
+
+        flash("Invalid email or password.", "danger")
+        return redirect(url_for("login"))
+
+    return render_template("login.html", body_class="auth-page")
+
+
+@app.route("/signup", methods=["POST"])
+def signup():
+    name = request.form.get("name", "").strip()
+    email = request.form.get("email", "").strip().lower()
+    password = request.form.get("password", "")
+    role = request.form.get("role", "member")
+
+    if not name or not email or not password:
+        flash("Name, email, and password are required.", "warning")
+        return redirect(url_for("login"))
+
+    if role not in {"admin", "member"}:
+        role = "member"
+
+    if User.query.filter_by(email=email).first():
+        flash("That email already has an account.", "warning")
+        return redirect(url_for("login"))
+
+    user = User(
+        name=name,
+        email=email,
+        password=generate_password_hash(password),
         role=role,
-        tasks_by_status=tasks_by_status,
-        total=total,
-        completed=completed,
-        overdue=overdue,
-        in_progress=in_progress,
-        high_priority=high_priority,
-        completion_rate=completion_rate,
-        users=users,
-        projects=projects,
-        filters=filters,
-        task_statuses=TASK_STATUSES,
-        priority_options=PRIORITY_OPTIONS,
-        project_themes=PROJECT_THEMES,
-        project_summaries=project_summaries,
-        upcoming_tasks=upcoming_tasks,
-        recent_wins=recent_wins,
-        board_total=len(all_cards),
-        has_projects=bool(projects),
-        dashboard_return=request.full_path if request.query_string else request.path,
     )
+    db.session.add(user)
+    db.session.commit()
+
+    flash("Account created. You can sign in now.", "success")
+    return redirect(url_for("login"))
+
+
+# ---------------- DASHBOARD ---------------- #
+
+
+@app.route("/dashboard")
+@login_required
+def dashboard():
+    return render_template("dashboard_overview.html", **build_workspace_context("overview"))
+
+
+@app.route("/board")
+@login_required
+def board():
+    return render_template("dashboard_board.html", **build_workspace_context("board"))
+
+
+@app.route("/insights")
+@login_required
+def insights():
+    return render_template("dashboard_insights.html", **build_workspace_context("insights"))
+
+
+@app.route("/manage")
+@admin_required
+def manage():
+    return render_template("dashboard_manage.html", **build_workspace_context("manage"))
 
 
 # ---------------- PROJECT ---------------- #
@@ -498,10 +542,11 @@ def create_project():
     name = request.form.get("name", "").strip()
     description = request.form.get("description", "").strip()
     theme = normalize_theme(request.form.get("theme", DEFAULT_THEME))
+    redirect_to = request.form.get("redirect_to")
 
     if not name:
         flash("Project name is required.", "warning")
-        return redirect(url_for("dashboard"))
+        return redirect(build_dashboard_redirect(redirect_to))
 
     project = Project(
         name=name,
@@ -513,7 +558,7 @@ def create_project():
     db.session.commit()
 
     flash(f"Project '{name}' created.", "success")
-    return redirect(url_for("dashboard"))
+    return redirect(build_dashboard_redirect(redirect_to))
 
 
 # ---------------- TASK ---------------- #
@@ -530,16 +575,17 @@ def create_task():
     deadline = parse_deadline(request.form.get("deadline", "").strip())
     priority = normalize_priority(request.form.get("priority"))
     status = normalize_status(request.form.get("status"))
+    redirect_to = request.form.get("redirect_to")
 
     if not title or not description or not assigned_to or not project_id:
         flash("Title, description, assignee, and project are required.", "warning")
-        return redirect(url_for("dashboard"))
+        return redirect(build_dashboard_redirect(redirect_to))
 
     assignee = db.session.get(User, assigned_to)
     project = db.session.get(Project, project_id)
     if not assignee or not project:
         flash("Choose a valid assignee and project.", "warning")
-        return redirect(url_for("dashboard"))
+        return redirect(build_dashboard_redirect(redirect_to))
 
     now = utcnow()
     task = Task(
@@ -559,7 +605,7 @@ def create_task():
     db.session.commit()
 
     flash(f"Task '{title}' added to {project.name}.", "success")
-    return redirect(url_for("dashboard"))
+    return redirect(build_dashboard_redirect(redirect_to))
 
 
 @app.route("/update_task/<int:task_id>", methods=["POST"])
