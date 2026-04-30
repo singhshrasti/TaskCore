@@ -4,7 +4,8 @@
     --surface-strong: #fffaf3;
     --surface-muted: rgba(255, 255, 255, 0.55);
     --ink: #17212b;
-    --muted: #5f6871;
+    --muted: #47545e;
+    --on-dark: rgba(255, 255, 255, 0.9);
     --line: rgba(23, 33, 43, 0.12);
     --shadow: 0 24px 60px rgba(26, 36, 48, 0.12);
     --accent: #e76f51;
@@ -293,7 +294,6 @@ button:hover {
 }
 
 .showcase-card p,
-.showcase-metrics span,
 .panel-heading p,
 .task-copy,
 .task-meta,
@@ -323,6 +323,10 @@ button:hover {
     background: linear-gradient(135deg, rgba(38, 70, 83, 0.9), rgba(42, 157, 143, 0.9));
     color: #fff;
     box-shadow: var(--shadow);
+}
+
+.showcase-metrics span {
+    color: var(--on-dark);
 }
 
 .showcase-metrics strong,
@@ -412,18 +416,25 @@ button:hover {
 
 .hero-banner {
     display: grid;
-    grid-template-columns: minmax(0, 1.35fr) minmax(250px, 0.65fr);
+    grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.75fr);
     gap: 1.25rem;
-    padding: 1.6rem;
+    padding: 1.55rem 1.6rem;
     border-radius: var(--radius-xl);
     background: linear-gradient(135deg, rgba(255, 249, 241, 0.84), rgba(255, 255, 255, 0.58));
     border: 1px solid rgba(23, 33, 43, 0.08);
     box-shadow: var(--shadow);
+    align-items: center;
 }
 
 .hero-banner h2 {
-    max-width: 20ch;
-    font-size: clamp(1.8rem, 3vw, 2.8rem);
+    max-width: 16ch;
+    font-size: clamp(1.6rem, 2.55vw, 2.45rem);
+}
+
+.hero-copy {
+    max-width: 54ch;
+    margin-top: 0.8rem;
+    color: var(--muted);
 }
 
 .hero-progress-card {
@@ -510,7 +521,40 @@ button:hover {
     align-items: flex-start;
     justify-content: space-between;
     gap: 1rem;
-    margin-bottom: 1rem;
+    margin-bottom: 1.1rem;
+}
+
+.panel-heading-stack {
+    display: grid;
+    gap: 0.7rem;
+}
+
+.panel-heading-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.panel-heading-top .eyebrow {
+    margin-bottom: 0;
+}
+
+.panel-intro {
+    max-width: 58ch;
+    color: var(--muted);
+}
+
+.section-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.4rem 0.8rem;
+    border-radius: 999px;
+    background: rgba(38, 70, 83, 0.08);
+    color: var(--navy);
+    font-size: 0.82rem;
+    font-weight: 700;
 }
 
 .panel-heading h3,
@@ -525,8 +569,8 @@ button:hover {
 
 .workspace-grid {
     display: grid;
-    grid-template-columns: minmax(280px, 0.9fr) minmax(0, 2.2fr) minmax(280px, 0.95fr);
-    gap: 1rem;
+    grid-template-columns: 320px minmax(0, 1.9fr) 300px;
+    gap: 1.15rem;
     align-items: start;
 }
 
@@ -536,21 +580,62 @@ button:hover {
     gap: 1rem;
 }
 
+.filter-panel {
+    position: sticky;
+    top: 1rem;
+}
+
+.board-filter-form {
+    gap: 1rem;
+}
+
+.filter-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.filter-grid > .field-span-2 {
+    grid-column: 1 / -1;
+}
+
 .board-column {
-    padding: 1rem;
+    padding: 1.05rem;
     border-radius: var(--radius-xl);
-    background: rgba(255, 255, 255, 0.68);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(255, 251, 245, 0.58));
     border: 1px solid rgba(23, 33, 43, 0.08);
     box-shadow: var(--shadow);
     min-height: 100%;
 }
 
+.lane-todo {
+    border-top: 4px solid rgba(244, 162, 97, 0.8);
+}
+
+.lane-progress {
+    border-top: 4px solid rgba(42, 157, 143, 0.8);
+}
+
+.lane-done {
+    border-top: 4px solid rgba(42, 157, 90, 0.8);
+}
+
 .column-heading {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
     gap: 1rem;
     margin-bottom: 1rem;
+    padding-bottom: 0.85rem;
+    border-bottom: 1px solid rgba(23, 33, 43, 0.08);
+}
+
+.column-copy {
+    margin-top: 0.35rem;
+    max-width: 24ch;
+    color: var(--muted);
+    font-size: 0.92rem;
+    line-height: 1.45;
 }
 
 .count-pill {
@@ -572,11 +657,11 @@ button:hover {
 }
 
 .task-card {
-    padding: 1rem;
-    border-radius: 20px;
-    background: rgba(255, 255, 255, 0.88);
+    padding: 1.05rem;
+    border-radius: 22px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 249, 243, 0.9));
     border: 1px solid rgba(23, 33, 43, 0.08);
-    box-shadow: 0 16px 30px rgba(26, 36, 48, 0.08);
+    box-shadow: 0 14px 26px rgba(26, 36, 48, 0.08);
 }
 
 .task-card-top,
@@ -589,6 +674,11 @@ button:hover {
 
 .task-card h4 {
     margin: 0.85rem 0 0.55rem;
+}
+
+.task-card-top {
+    align-items: center;
+    justify-content: space-between;
 }
 
 .task-copy {
@@ -622,9 +712,25 @@ button:hover {
 .task-update-form {
     margin-top: 1rem;
     display: grid;
-    gap: 0.8rem;
+    gap: 0.9rem;
     padding-top: 0.9rem;
     border-top: 1px solid rgba(23, 33, 43, 0.08);
+}
+
+.task-update-top {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.8rem;
+    align-items: end;
+}
+
+.task-status-field {
+    margin: 0;
+}
+
+.task-update-top button {
+    padding-inline: 1rem;
+    white-space: nowrap;
 }
 
 .tag {
@@ -692,7 +798,14 @@ button:hover {
     padding: 1.1rem;
     border-radius: var(--radius-lg);
     border: 1px dashed rgba(38, 70, 83, 0.22);
-    background: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.58);
+}
+
+.empty-column {
+    min-height: 230px;
+    display: grid;
+    align-content: center;
+    text-align: left;
 }
 
 .project-summary,
@@ -744,7 +857,7 @@ button:hover {
 
 @media (max-width: 1320px) {
     .workspace-grid {
-        grid-template-columns: minmax(260px, 0.95fr) minmax(0, 1.8fr);
+        grid-template-columns: 300px minmax(0, 1.8fr);
     }
 
     .insights-panel {
@@ -766,6 +879,10 @@ button:hover {
         grid-template-columns: 1fr;
     }
 
+    .filter-panel {
+        position: static;
+    }
+
     .filter-panel,
     .board,
     .insights-panel {
@@ -777,6 +894,7 @@ button:hover {
     .auth-layout,
     .hero-banner,
     .form-split,
+    .filter-grid,
     .showcase-grid,
     .showcase-metrics,
     .admin-grid,
@@ -796,6 +914,10 @@ button:hover {
 
     .auth-showcase {
         padding-right: 0;
+    }
+
+    .task-update-top {
+        grid-template-columns: 1fr;
     }
 }
 

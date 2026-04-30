@@ -25,6 +25,7 @@
         <div>
             <p class="eyebrow">Work snapshot</p>
             <h2>Stay ahead of deadlines, unblock teammates, and keep project momentum visible.</h2>
+            <p class="hero-copy">A calmer board for planning, tracking, and closing work without losing context.</p>
         </div>
         <div class="hero-progress-card">
             <span>Completion rate</span>
@@ -62,12 +63,15 @@
     {% if role == 'admin' %}
     <section class="admin-grid">
         <article class="panel">
-            <div class="panel-heading">
-                <div>
+            <div class="panel-heading panel-heading-stack">
+                <div class="panel-heading-top">
                     <p class="eyebrow">Admin</p>
-                    <h3>Create project</h3>
+                    <span class="section-badge">Project setup</span>
                 </div>
-                <p>Give each project a short brief and visual theme.</p>
+                <div>
+                    <h3>Create project</h3>
+                    <p class="panel-intro">Start a new workspace area with a clear brief and a visual identity your team can recognize quickly.</p>
+                </div>
             </div>
             <form method="POST" action="{{ url_for('create_project') }}" class="stack-form">
                 <label>
@@ -91,16 +95,19 @@
         </article>
 
         <article class="panel">
-            <div class="panel-heading">
-                <div>
+            <div class="panel-heading panel-heading-stack">
+                <div class="panel-heading-top">
                     <p class="eyebrow">Admin</p>
-                    <h3>Create task</h3>
+                    <span class="section-badge">Task planning</span>
                 </div>
-                <p>Assign owners, add priorities, and capture handoff notes upfront.</p>
+                <div>
+                    <h3>Create task</h3>
+                    <p class="panel-intro">Assign owners, set urgency, and capture the context teammates need before they even open the task.</p>
+                </div>
             </div>
 
             {% if has_projects %}
-            <form method="POST" action="{{ url_for('create_task') }}" class="stack-form">
+            <form method="POST" action="{{ url_for('create_task') }}" class="stack-form task-creator-form">
                 <label>
                     Title
                     <input name="title" placeholder="Design approval review" required>
@@ -109,7 +116,7 @@
                     Description
                     <textarea name="description" rows="3" placeholder="Describe the task clearly so the assignee knows what success looks like." required></textarea>
                 </label>
-                <div class="form-split">
+                <div class="form-split form-split-wide">
                     <label>
                         Assignee
                         <select name="assigned_to">
@@ -149,7 +156,7 @@
                     Deadline
                     <input type="date" name="deadline">
                 </label>
-                <label>
+                <label class="field-span-2">
                     Notes
                     <textarea name="notes" rows="3" placeholder="Dependencies, blockers, links, or context."></textarea>
                 </label>
@@ -167,78 +174,94 @@
 
     <section class="workspace-grid">
         <aside class="panel filter-panel">
-            <div class="panel-heading">
+            <div class="panel-heading panel-heading-stack">
                 <div>
                     <p class="eyebrow">Board controls</p>
-                    <h3>Filter your view</h3>
+                    <div class="panel-heading-top">
+                        <h3>Refine the board</h3>
+                        <span class="section-badge">{{ total }} shown</span>
+                    </div>
+                    <p class="panel-intro">Search faster, narrow the noise, and focus on exactly the tasks you want to review.</p>
                 </div>
-                <p>Search by title, owner, notes, or project.</p>
             </div>
 
-            <form method="GET" class="stack-form">
-                <label>
+            <form method="GET" class="stack-form board-filter-form">
+                <label class="field-span-full">
                     Search
                     <input name="q" value="{{ filters.q }}" placeholder="Search tasks, notes, or teammates">
                 </label>
-                <label>
-                    Status
-                    <select name="status" data-autosubmit>
-                        <option value="All" {% if filters.status == 'All' %}selected{% endif %}>All statuses</option>
-                        {% for status in task_statuses %}
-                        <option value="{{ status }}" {% if filters.status == status %}selected{% endif %}>{{ status }}</option>
-                        {% endfor %}
-                    </select>
-                </label>
-                <label>
-                    Priority
-                    <select name="priority" data-autosubmit>
-                        <option value="All" {% if filters.priority == 'All' %}selected{% endif %}>All priorities</option>
-                        {% for priority in priority_options %}
-                        <option value="{{ priority }}" {% if filters.priority == priority %}selected{% endif %}>{{ priority }}</option>
-                        {% endfor %}
-                    </select>
-                </label>
-                <label>
-                    Project
-                    <select name="project" data-autosubmit>
-                        <option value="all" {% if filters.project == 'all' %}selected{% endif %}>All projects</option>
-                        {% for project in projects %}
-                        <option value="{{ project.id }}" {% if filters.project == project.id ~ '' %}selected{% endif %}>{{ project.name }}</option>
-                        {% endfor %}
-                    </select>
-                </label>
-                <label>
-                    View
-                    <select name="view" data-autosubmit>
-                        <option value="all" {% if filters.view == 'all' %}selected{% endif %}>Everything</option>
-                        <option value="open" {% if filters.view == 'open' %}selected{% endif %}>Open work</option>
-                        <option value="due_soon" {% if filters.view == 'due_soon' %}selected{% endif %}>Due this week</option>
-                        <option value="overdue" {% if filters.view == 'overdue' %}selected{% endif %}>Overdue</option>
-                        <option value="completed" {% if filters.view == 'completed' %}selected{% endif %}>Completed</option>
-                    </select>
-                </label>
-                <label>
-                    Sort
-                    <select name="sort" data-autosubmit>
-                        <option value="deadline" {% if filters.sort == 'deadline' %}selected{% endif %}>Deadline first</option>
-                        <option value="priority" {% if filters.sort == 'priority' %}selected{% endif %}>Priority first</option>
-                        <option value="newest" {% if filters.sort == 'newest' %}selected{% endif %}>Newest first</option>
-                        <option value="project" {% if filters.sort == 'project' %}selected{% endif %}>Project name</option>
-                    </select>
-                </label>
+                <div class="filter-grid">
+                    <label>
+                        Status
+                        <select name="status" data-autosubmit>
+                            <option value="All" {% if filters.status == 'All' %}selected{% endif %}>All statuses</option>
+                            {% for status in task_statuses %}
+                            <option value="{{ status }}" {% if filters.status == status %}selected{% endif %}>{{ status }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <label>
+                        Priority
+                        <select name="priority" data-autosubmit>
+                            <option value="All" {% if filters.priority == 'All' %}selected{% endif %}>All priorities</option>
+                            {% for priority in priority_options %}
+                            <option value="{{ priority }}" {% if filters.priority == priority %}selected{% endif %}>{{ priority }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <label>
+                        Project
+                        <select name="project" data-autosubmit>
+                            <option value="all" {% if filters.project == 'all' %}selected{% endif %}>All projects</option>
+                            {% for project in projects %}
+                            <option value="{{ project.id }}" {% if filters.project == project.id ~ '' %}selected{% endif %}>{{ project.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <label>
+                        View
+                        <select name="view" data-autosubmit>
+                            <option value="all" {% if filters.view == 'all' %}selected{% endif %}>Everything</option>
+                            <option value="open" {% if filters.view == 'open' %}selected{% endif %}>Open work</option>
+                            <option value="due_soon" {% if filters.view == 'due_soon' %}selected{% endif %}>Due this week</option>
+                            <option value="overdue" {% if filters.view == 'overdue' %}selected{% endif %}>Overdue</option>
+                            <option value="completed" {% if filters.view == 'completed' %}selected{% endif %}>Completed</option>
+                        </select>
+                    </label>
+                    <label class="field-span-2">
+                        Sort
+                        <select name="sort" data-autosubmit>
+                            <option value="deadline" {% if filters.sort == 'deadline' %}selected{% endif %}>Deadline first</option>
+                            <option value="priority" {% if filters.sort == 'priority' %}selected{% endif %}>Priority first</option>
+                            <option value="newest" {% if filters.sort == 'newest' %}selected{% endif %}>Newest first</option>
+                            <option value="project" {% if filters.sort == 'project' %}selected{% endif %}>Project name</option>
+                        </select>
+                    </label>
+                </div>
 
                 <div class="form-actions">
                     <button type="submit">Apply filters</button>
-                    <a class="ghost-link" href="{{ url_for('dashboard') }}">Clear</a>
+                    <a class="ghost-link" href="{{ url_for('dashboard') }}">Clear all</a>
                 </div>
             </form>
         </aside>
 
         <section class="board">
             {% for status in task_statuses %}
-            <article class="board-column">
+            <article class="board-column {% if status == 'Todo' %}lane-todo{% elif status == 'In Progress' %}lane-progress{% else %}lane-done{% endif %}">
                 <div class="column-heading">
-                    <h3>{{ status }}</h3>
+                    <div>
+                        <h3>{{ status }}</h3>
+                        <p class="column-copy">
+                            {% if status == 'Todo' %}
+                            Ready to start and waiting for action.
+                            {% elif status == 'In Progress' %}
+                            Active tasks your team is moving right now.
+                            {% else %}
+                            Completed work and recent finishes.
+                            {% endif %}
+                        </p>
+                    </div>
                     <span class="count-pill">{{ tasks_by_status[status]|length }}</span>
                 </div>
 
@@ -272,19 +295,21 @@
                         {% if card.can_edit %}
                         <form method="POST" action="{{ url_for('update_task', task_id=card.task.id) }}" class="task-update-form">
                             <input type="hidden" name="redirect_to" value="{{ dashboard_return }}">
-                            <label>
-                                Status
-                                <select name="status">
-                                    {% for status in task_statuses %}
-                                    <option value="{{ status }}" {% if card.status == status %}selected{% endif %}>{{ status }}</option>
-                                    {% endfor %}
-                                </select>
-                            </label>
+                            <div class="task-update-top">
+                                <label class="task-status-field">
+                                    Status
+                                    <select name="status">
+                                        {% for status in task_statuses %}
+                                        <option value="{{ status }}" {% if card.status == status %}selected{% endif %}>{{ status }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </label>
+                                <button type="submit">Save update</button>
+                            </div>
                             <label>
                                 Notes
                                 <textarea name="notes" rows="3" placeholder="Add blockers, updates, or handoff notes.">{{ card.task.notes or '' }}</textarea>
                             </label>
-                            <button type="submit">Save update</button>
                         </form>
                         {% endif %}
                     </article>
@@ -300,12 +325,12 @@
         </section>
 
         <aside class="panel insights-panel">
-            <div class="panel-heading">
+            <div class="panel-heading panel-heading-stack">
                 <div>
                     <p class="eyebrow">Insights</p>
                     <h3>Project health</h3>
+                    <p class="panel-intro">Keep an eye on momentum, workload balance, and what is most likely to need attention next.</p>
                 </div>
-                <p>Progress is based on all tasks visible to this account.</p>
             </div>
 
             {% if project_summaries %}
