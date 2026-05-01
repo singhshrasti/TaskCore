@@ -67,3 +67,6 @@ python app.py
 - Email or in-app reminders
 - Team activity timeline
 - Deployment configuration for production secrets
+
+## Live Link
+web-production-fb878.up.railway.app
