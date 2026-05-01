@@ -68,5 +68,4 @@ python app.py
 - Team activity timeline
 - Deployment configuration for production secrets
 
-## Live Link
-web-production-fb878.up.railway.app
+
